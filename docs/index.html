@@ -77,6 +77,9 @@ function convert(){
   mapping_single_chars = conversion_data["mapping_single_chars"];
   ignorable_marks = conversion_data["ignorable_marks"];
   tagable_chars = conversion_data["tagable_chars"];
+  dakutens = ["\u3099", "\u309a"];
+  dakutenable_kana = [..."うかきくけこさしすせそたちつてとはひふへほゝウカキクケコサシスセソタチツテトハヒフヘホワヰヱヲヽｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎﾜｦ"];
+  handakutenable_kana = [..."はひふへほハヒフヘホ"]
   
   function replace_to_one_of_ligatures(key){
     key = key.toLowerCase();
@@ -121,8 +124,12 @@ function convert(){
 	  
 	  times = Math.floor(Math.random() * (max - min + 1)) + min ;
 	  //console.log(times);
-      for (j = 0; j < times; j++){
-        s += get_random_mark();
+      for (j = 0; j < times; j++){ 
+		mark = get_random_mark();
+		//濁点をつけると意味が変わってしまうひらがな・カタカナの場合は濁点類はつけない
+		if (mark == "\u3099" && dakutenable_kana.includes(c)){j--; continue;}
+		if (mark == "\u309a" && handakutenable_kana.includes(c)){j--; continue;}
+        s += mark;
       }
     }
     /*return s;*/
@@ -134,9 +141,14 @@ function convert(){
   //remove diacritics
   for (i = 0; i < ignorable_marks.length; i++) { // for (... in ...)にすると正規化されるっぽくてうまくいかない
     c = ignorable_marks[i];
+    if (dakutens.includes(c)) continue; //濁点類は合成後にやらないと消える
     text = text.replace(c, "");
   }
   text = text.normalize("NFKC"); //normalize: composite
+  //濁点類を消す
+  for (c in dakutens) {
+    text = text.replace(c, "");
+  }
   for (key in mapping_ligatures){ //replace ligatures
     regex = new RegExp(key, 'ig'); //case-insensitive
     text = text.replaceAll(regex, replace_to_one_of_ligatures);
