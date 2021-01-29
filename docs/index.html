@@ -93,22 +93,6 @@ function convert(){
     idx = Math.floor(Math.random() * candidate_array.length);
     return candidate_array[idx];
   }
-  /*
-  function add_diacritics(s, min, max){
-    console.log(s);
-
-    times = Math.floor(Math.random() * (max - min)) + min;
-    ss = s;
-    for (i = 0; i < times; i++){
-      ss += get_random_mark();
-    }
-	console.log(ss);
-    //return ss;
-    return "0";
-  }
-  function get_func_add_diacritics(min, max){
-    return function(s){add_diacritics(s, min, max);};
-  }*/
   function get_random_mark(){
     idx = Math.floor(Math.random() * ignorable_marks.length);
     return ignorable_marks[idx];
@@ -119,21 +103,20 @@ function convert(){
     for (i = 0; i < chars.length; i++){
       c = chars[i];
       s += c;
-	  //タグに使える文字でなければスキップ
+      //タグに使える文字でなければスキップ
       if (!tagable_chars.includes(c)) continue;
-	  
-	  times = Math.floor(Math.random() * (max - min + 1)) + min ;
-	  //console.log(times);
+      
+      times = Math.floor(Math.random() * (max - min + 1)) + min ;
+      //console.log(times);
       for (j = 0; j < times; j++){ 
-		mark = get_random_mark();
-		//濁点をつけると意味が変わってしまうひらがな・カタカナの場合は濁点類はつけない
-		if (mark == "\u3099" && dakutenable_kana.includes(c)){j--; continue;}
-		if (mark == "\u309a" && handakutenable_kana.includes(c)){j--; continue;}
+        mark = get_random_mark();
+        //濁点をつけると意味が変わってしまうひらがな・カタカナの場合は濁点類はつけない
+        if (mark == "\u3099" && dakutenable_kana.includes(c)){j--; continue;}
+        if (mark == "\u309a" && handakutenable_kana.includes(c)){j--; continue;}
         s += mark;
       }
     }
-    /*return s;*/
-	return s;
+    return s;
   }
   
   text = document.forms.mainForm.orig.value;
