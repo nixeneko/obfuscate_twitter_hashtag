@@ -23,7 +23,7 @@ textarea {
  <script type="text/javascript" src="./conversion_data.js"></script>
  <script type="text/javascript">
 //conversion_data = {"mapping_ligatures":...,"mapping_single_chars":..., "combining_marks":...}
-function convert(){
+function convert(num_conv){
   mapping_ligatures = conversion_data["mapping_ligatures"];
   mapping_single_chars = conversion_data["mapping_single_chars"];
   ignorable_marks = conversion_data["ignorable_marks"];
@@ -33,14 +33,22 @@ function convert(){
   handakutenable_kana = [..."はひふへほハヒフヘホ"]
   
   function replace_to_one_of_ligatures(key){
-    key = key.toLowerCase();
-    candidate_array = mapping_ligatures[key];
+    key_lower = key.toLowerCase();
+    candidate_array = mapping_ligatures[key_lower];
+    if (!candidate_array) { //candidate_arrayがundefinedになることがあり、とりあえずそのまま返す
+      console.log(key);
+      return key;
+    }
     idx = Math.floor(Math.random() * candidate_array.length);
     return candidate_array[idx];
   }
   function replace_to_one_of_chars(key){
-    key = key.toLowerCase();
-    candidate_array = mapping_single_chars[key];
+    key_lower = key.toLowerCase()
+    candidate_array = mapping_single_chars[key_lower];
+    if (!candidate_array) { //candidate_arrayがundefinedになることがあり、とりあえずそのまま返す
+      console.log(key);
+      return key;
+    }
     idx = Math.floor(Math.random() * candidate_array.length);
     return candidate_array[idx];
   }
@@ -69,34 +77,40 @@ function convert(){
     }
     return s;
   }
+  function converted_str(s){
+    text = s.normalize("NFKD"); //normalize
+    //remove diacritics
+    for (i = 0; i < ignorable_marks.length; i++) { // for (... in ...)にすると正規化されるっぽくてうまくいかない
+      c = ignorable_marks[i];
+      if (dakutens.includes(c)) continue; //濁点類は合成後にやらないと消える
+      text = text.replace(c, "");
+    }
+    text = text.normalize("NFKC"); //normalize: composite
+    //濁点類を消す
+    for (c in dakutens) {
+      text = text.replace(c, "");
+    }
+    for (key in mapping_ligatures){ //replace ligatures
+      regex = new RegExp(key, 'ig'); //case-insensitive
+      text = text.replaceAll(regex, replace_to_one_of_ligatures);
+    }
+    for (key in mapping_single_chars){ //replace single chars
+      regex = new RegExp(key, 'ig'); //case-insensitive
+      text = text.replaceAll(regex, replace_to_one_of_chars);
+    }
+    // add diacritics if it's a letter
+    min_marks = 0;
+    max_marks = 3;
+    text = add_marks(text, min_marks, max_marks);
+    return text;
+  }
   
   text = document.forms.mainForm.orig.value;
-  text = text.normalize("NFKD"); //normalize
-  //remove diacritics
-  for (i = 0; i < ignorable_marks.length; i++) { // for (... in ...)にすると正規化されるっぽくてうまくいかない
-    c = ignorable_marks[i];
-    if (dakutens.includes(c)) continue; //濁点類は合成後にやらないと消える
-    text = text.replace(c, "");
+  converted_text = "";
+  for (k = 0; k<num_conv; k++){
+    converted_text += converted_str(text)+"\n";
   }
-  text = text.normalize("NFKC"); //normalize: composite
-  //濁点類を消す
-  for (c in dakutens) {
-    text = text.replace(c, "");
-  }
-  for (key in mapping_ligatures){ //replace ligatures
-    regex = new RegExp(key, 'ig'); //case-insensitive
-    text = text.replaceAll(regex, replace_to_one_of_ligatures);
-  }
-  for (key in mapping_single_chars){ //replace single chars
-    regex = new RegExp(key, 'ig'); //case-insensitive
-    text = text.replaceAll(regex, replace_to_one_of_chars);
-  }
-  // add diacritics if it's a letter
-  min_marks = 0;
-  max_marks = 3;
-  text = add_marks(text, min_marks, max_marks);
-    
-  document.forms.mainForm.conv.value=text;
+  document.forms.mainForm.conv.value=converted_text;
 }
 
  </script>
@@ -110,7 +124,7 @@ function convert(){
  <div class="container">
   <div><legend id="legend_orig">変換前(ハッシュタグ以外は入力しないでください)</legend></div>
   <div><input type="text" name="orig"></input></div>
-  <div><button type="button" onclick="convert();">↓変換!</button><button type="button" onclick="convert();">10連ガチャ</button></div>
+  <div><button type="button" onclick="convert(1);">↓変換!</button><button type="button" onclick="convert(10);">10連ガチャ</button></div>
   <div class="textarea_container" id="texcont_conv">
    <textarea name="conv"></textarea>
   </div>
