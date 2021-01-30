@@ -66,7 +66,6 @@ function convert(num_conv){
       if (!tagable_chars.includes(c)) continue;
       
       times = Math.floor(Math.random() * (max - min + 1)) + min ;
-      //console.log(times);
       for (j = 0; j < times; j++){ 
         mark = get_random_mark();
         //濁点をつけると意味が変わってしまうひらがな・カタカナの場合は濁点類はつけない
@@ -78,31 +77,31 @@ function convert(num_conv){
     return s;
   }
   function converted_str(s){
-    text = s.normalize("NFKD"); //normalize
+    text_conv = s.normalize("NFKD"); //normalize
     //remove diacritics
     for (i = 0; i < ignorable_marks.length; i++) { // for (... in ...)にすると正規化されるっぽくてうまくいかない
       c = ignorable_marks[i];
       if (dakutens.includes(c)) continue; //濁点類は合成後にやらないと消える
-      text = text.replace(c, "");
+      text_conv = text_conv.replace(c, "");
     }
-    text = text.normalize("NFKC"); //normalize: composite
+    text_conv = text_conv.normalize("NFKC"); //normalize: composite
     //濁点類を消す
     for (c in dakutens) {
-      text = text.replace(c, "");
+      text_conv = text_conv.replace(c, "");
     }
     for (key in mapping_ligatures){ //replace ligatures
       regex = new RegExp(key, 'ig'); //case-insensitive
-      text = text.replaceAll(regex, replace_to_one_of_ligatures);
+      text_conv = text_conv.replaceAll(regex, replace_to_one_of_ligatures);
     }
     for (key in mapping_single_chars){ //replace single chars
       regex = new RegExp(key, 'ig'); //case-insensitive
-      text = text.replaceAll(regex, replace_to_one_of_chars);
+      text_conv = text_conv.replaceAll(regex, replace_to_one_of_chars);
     }
     // add diacritics if it's a letter
     min_marks = 0;
     max_marks = 3;
-    text = add_marks(text, min_marks, max_marks);
-    return text;
+    text_conv = add_marks(text_conv, min_marks, max_marks);
+    return text_conv;
   }
   
   text = document.forms.mainForm.orig.value;
