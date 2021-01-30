@@ -35,8 +35,9 @@ function convert(num_conv){
   ignorable_marks = conversion_data["ignorable_marks"];
   tagable_chars = conversion_data["tagable_chars"];
   dakutens = ["\u3099", "\u309a"];
+  hankaku_dakutens = ["\uff9e", "\uff9f"];
   dakutenable_kana = [..."うかきくけこさしすせそたちつてとはひふへほゝウカキクケコサシスセソタチツテトハヒフヘホワヰヱヲヽｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎﾜｦ"];
-  handakutenable_kana = [..."はひふへほハヒフヘホ"]
+  handakutenable_kana = [..."はひふへほハヒフヘホ"];
   
   function replace_to_one_of_ligatures(key){
     key_lower = key.toLowerCase();
@@ -70,6 +71,13 @@ function convert(num_conv){
       s += c;
       //タグに使える文字でなければスキップ
       if (!tagable_chars.includes(c)) continue;
+      
+      //仮名の次に半角濁点・半濁点が来てる場合はマークをつけない
+      if ( (i+1 < chars.length) //最後の文字でない
+        && dakutenable_kana.includes(c) //仮名である
+        && hankaku_dakutens.includes(chars[i+1]) ){ //次が半角濁点・半濁点である
+          continue;
+      }
       
       times = Math.floor(Math.random() * (max - min + 1)) + min ;
       for (j = 0; j < times; j++){ 
