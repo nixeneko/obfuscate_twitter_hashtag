@@ -118,11 +118,13 @@ function convert(num_conv){
 <body>
 <h1>Twitterハッシュタグ難読化</h1>
 <p>Twitterのハッシュタグを入力とし、等価に解釈されるTwitterのハッシュタグをランダムに生成します。等価であることを目指しています。<br>
+等価とは、Twitter検索でハッシュタグを検索した時に同じ検索結果となることです。<br>
 数字やラテン文字に特に効果がありますが、それ以外だとうまくいかないかもしれません。漢字やハングルには今のところ対応していません。</p>
 <p>もし、ハッシュタグとして等価にならない場合があれば<a href="https://twitter.com/nixeneko">@nixeneko</a>まで教えていただければ幸いです。</p>
+<div></div>
 <form name="mainForm">
  <div class="container">
-  <div><legend id="legend_orig">変換前(ハッシュタグ以外は入力しないでください)</legend></div>
+  <div><legend id="legend_orig">変換したいハッシュタグ:</legend></div>
   <div><input type="text" name="orig"></input></div>
   <div><button type="button" onclick="convert(1);">↓変換!</button><button type="button" onclick="convert(10);">10連ガチャ</button></div>
   <div class="textarea_container" id="texcont_conv">
